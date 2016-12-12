@@ -22008,6 +22008,148 @@
 	    }
 	  }
 
+		
+1) What would be the ouput?
+
+(function() {
+    console.log(1); 
+    setTimeout(function(){console.log(2)}, 1000); 
+    setTimeout(function(){console.log(3)}, 0); 
+    console.log(4);
+})();
+
+Ans:
+1 4 3 2
+
+Most events are asynchronous.When an asynchronous event occurs, it gets into the Event queue.
+The browser has inner loop, called Event Loop, which checks the queue and processes events, executes functions etc.
+setTimeout/setInterval also put executions of their functions into the event queue. The execution of func goes to the Event queue on the nearest timer tick.
+
+
+2) What will be the output of the following code?
+
+for (var i = 0; i < 5; i++) {
+  setTimeout(function() { console.log(i); }, i * 1000 );
+}
+
+Ans:
+5 5 5 5 5 
+
+The reason for this is that each function executed within the loop will be executed after the entire loop has completed and all will therefore reference the last value stored in i, which was 5.
+Fix:
+Closures can be used to prevent this problem by creating a unique scope for each iteration
+for (var i = 0; i < 5; i++) {
+	(function(x) {
+    	setTimeout(function() { console.log(x); }, x * 1000 );
+    })(i);
+}
+
+3) What is the issue with this code and how can it be fixed?
+
+var obj = {_a : 10};
+function test() {
+    var _a = 1;
+    console.log(this._a);
+}
+test();
+
+Ans:
+It will optput undefined
+test() is being invoked in the global context (i.e. the window object) where the _a property does not exist.
+Fix:
+test.call(obj);
+In the code 'this' will point to obj. It will ouput 10
+
+4) Write the MyObj.map() function so the result variable is assigned to the array [4, 8, 12].
+
+var result = MyObj.map([2, 4, 6], function(num) {
+  return num * 2;
+});
+console.log(result);
+
+Ans:
+MyObj = {
+  map: function(arr, callback) {
+    result = [];
+    arr.forEach(function (e) {
+      result.push(callback(e));
+    });
+    return result;
+  }
+}
+
+5) What is a prototype? Explain with sample code
+
+Ans:
+JavaScript is an object-based language based on prototypes, rather than being class-based.
+JavaScript allows you to create hierarchies of objects and to have inheritance of properties and their values.
+
+// Define the Person constructor
+var Person = function(firstName) {
+  this.firstName = firstName;
+};
+
+// Add a couple of methods to Person.prototype
+Person.prototype.walk = function(){
+  console.log("I am walking!");
+};
+
+Person.prototype.sayHello = function(){
+  console.log("Hello, I'm " + this.firstName);
+};
+
+// Define the Student constructor
+function Student(firstName, subject) {
+  // Call the parent constructor, making sure (using call)
+  // that "this" is set correctly during the call
+  Person.call(this, firstName);
+
+  // Initialize our Student-specific properties
+  this.subject = subject;
+}
+
+// Create a Student.prototype object that inherits from Person.prototype.
+// Note: A common error here is to use "new Person()" to create the
+// Student.prototype. That's incorrect for several reasons, not least 
+// that we don't have anything to give Person for the "firstName" 
+// parameter. The correct place to call Person is above, where we call 
+// it from Student.
+Student.prototype = Object.create(Person.prototype); // See note below
+
+// Set the "constructor" property to refer to Student
+Student.prototype.constructor = Student;
+
+// Replace the "sayHello" method
+Student.prototype.sayHello = function(){
+  console.log("Hello, I'm " + this.firstName + ". I'm studying "
+              + this.subject + ".");
+};
+
+// Add a "sayGoodBye" method
+Student.prototype.sayGoodBye = function(){
+  console.log("Goodbye!");
+};
+
+// Example usage:
+var student1 = new Student("Janet", "Applied Physics");
+student1.sayHello();   // "Hello, I'm Janet. I'm studying Applied Physics."
+student1.walk();       // "I am walking!"
+student1.sayGoodBye(); // "Goodbye!"
+
+// Check that instanceof works correctly
+console.log(student1 instanceof Person);  // true 
+console.log(student1 instanceof Student); // true
+
+6) What is the difference between call, apply and bind methods?
+
+Ans:
+
+The call() method calls a function with a given this value and arguments provided individually.
+The apply() method calls a function with a given this value and arguments provided as an array.
+The bind() method creates a new function that, when called, has its this keyword set to the provided value, with a given sequence of arguments preceding any provided when the new function is called.
+
+7) 
+
 	  handler = this._events[type];
 
 	  if (isUndefined(handler))
